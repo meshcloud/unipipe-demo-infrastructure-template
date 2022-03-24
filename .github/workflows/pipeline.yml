@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v1
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0.4.0'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - run: terraform init
+      - run: terraform apply -auto-approve
+      - name: git
+        run: |
+          git config --global user.email "team@example.com"
+          git config --global user.name "Infrastructure Bot"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Update Infrastructure"
+          git push
