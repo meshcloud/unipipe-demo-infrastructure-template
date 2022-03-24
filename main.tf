@@ -9,8 +9,3 @@ terraform {
 
 provider "google" {
 }
-
-resource "google_compute_network" "vpc_network" {
-  name                    = "my-testing-network"
-  auto_create_subnetworks = "true"
-}
